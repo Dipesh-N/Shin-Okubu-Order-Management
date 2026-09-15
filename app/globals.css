@@ -1,26 +1,38 @@
 @import "tailwindcss";
 
+@theme {
+  /* Status colours. These carry meaning across every screen, so they are
+     defined once here rather than repeated as ad-hoc classes. */
+  --color-status-new: #dc2626; /* red    — kitchen has not started */
+  --color-status-cooking: #ea580c; /* orange — being cooked */
+  --color-status-ready: #16a34a; /* green  — ready to serve */
+  --color-status-idle: #64748b; /* slate  — nothing happening */
+
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* Fast-paced, wet-handed staff on tablets: never let a mis-tap select text
+   or trigger the iOS double-tap zoom. */
+button,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+/* iOS zooms the page in when a focused input has a font smaller than 16px. */
+input,
+select,
+textarea {
+  font-size: max(16px, 1rem);
 }
