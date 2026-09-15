@@ -81,7 +81,7 @@ export function ModePicker() {
   return (
     <main className="flex flex-1 flex-col justify-center gap-4 p-6">
       <p className="text-center text-slate-500">
-        What is this device used for?
+        Select your role 
       </p>
 
       <div className="mx-auto grid w-full max-w-3xl gap-4 sm:grid-cols-2">
@@ -92,7 +92,7 @@ export function ModePicker() {
         >
           <span className="text-5xl" aria-hidden>🍽</span>
           <span className="text-2xl font-bold">Hall</span>
-          <span className="text-sm text-slate-500">Take orders · 2nd floor</span>
+          <span className="text-sm text-slate-500">Take orders</span>
         </button>
 
         <button
@@ -102,7 +102,7 @@ export function ModePicker() {
         >
           <span className="text-5xl" aria-hidden>🍳</span>
           <span className="text-2xl font-bold">Kitchen</span>
-          <span className="text-sm text-slate-500">Cook orders · 1st floor</span>
+          <span className="text-sm text-slate-500">Cook orders</span>
         </button>
       </div>
 

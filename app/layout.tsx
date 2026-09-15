@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { RESTAURANT_NAME } from "@/lib/restaurant";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,8 +14,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Okubu Momo",
-  description: "Order management for Okubu Momo",
+  // The template appends the name to every child page's title, so pages only
+  // set their own part ("Hall" becomes "Hall · Okubu Momo").
+  title: {
+    default: RESTAURANT_NAME,
+    template: `%s · ${RESTAURANT_NAME}`,
+  },
+  description: `Order management for ${RESTAURANT_NAME}`,
 };
 
 // Tablets and phones: fill the screen, and never zoom on input focus.

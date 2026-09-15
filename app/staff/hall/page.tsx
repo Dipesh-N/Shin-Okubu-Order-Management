@@ -2,7 +2,7 @@ import { requireRole } from "@/lib/auth";
 import { AppShell } from "@/components/app-shell";
 import { HallView } from "./hall-view";
 
-export const metadata = { title: "Hall · Okubu Momo" };
+export const metadata = { title: "Hall" };
 
 export default async function HallPage() {
   await requireRole("staff");

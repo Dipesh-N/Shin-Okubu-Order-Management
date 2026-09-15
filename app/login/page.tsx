@@ -1,6 +1,7 @@
 import { LoginForm } from "./login-form";
+import { RESTAURANT_NAME } from "@/lib/restaurant";
 
-export const metadata = { title: "Sign in · Okubu Momo" };
+export const metadata = { title: "Sign in" };
 
 export default function LoginPage() {
   return (
@@ -8,7 +9,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-            Okubu Momo
+            {RESTAURANT_NAME}
           </h1>
           <p className="mt-1 text-slate-500">Order management</p>
         </div>
