@@ -8,7 +8,7 @@ cd "$(dirname "$0")"
   echo "--  Paste this whole file into the Supabase SQL Editor and Run."
   echo "-- ============================================================"
   echo
-  for f in 01_schema.sql 02_rls.sql 03_functions.sql 04_realtime.sql 05_seed.sql 06_categories.sql 07_deletes.sql 08_kitchen_routing.sql 09_settle_completes.sql 10_takeout.sql 11_payment_independent.sql; do
+  for f in 01_schema.sql 02_rls.sql 03_functions.sql 04_realtime.sql 06_categories.sql 07_deletes.sql 08_kitchen_routing.sql 09_settle_completes.sql 10_takeout.sql 11_payment_independent.sql 12_amendments.sql; do
     echo; echo; cat "$f"
   done
 } > RUN_ALL.sql

@@ -134,7 +134,11 @@ export default async function AdminMenuPage() {
                   </div>
 
                   <div className="hidden px-3 pb-3 peer-checked:block">
-                    <EditMenuItemPanel item={item} categories={categories} />
+                    <EditMenuItemPanel
+                      item={item}
+                      categories={categories}
+                      toggleId={`edit-${item.id}`}
+                    />
                   </div>
                 </div>
               ))}

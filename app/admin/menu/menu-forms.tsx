@@ -9,6 +9,7 @@ import {
   type FormState,
 } from "@/app/admin/actions";
 import type { MenuItem } from "@/lib/types";
+import { useCloseOnSave } from "@/lib/use-close-on-save";
 
 const EMPTY: FormState = { error: null, ok: null };
 
@@ -106,12 +107,17 @@ export function AddMenuItemForm({ categories }: { categories: string[] }) {
 export function EditMenuItemPanel({
   item,
   categories,
+  toggleId,
 }: {
   item: MenuItem;
   categories: string[];
+  /** The checkbox that opens this panel, so a successful save can close it. */
+  toggleId: string;
 }) {
   const [state, action] = useActionState(updateMenuItem, EMPTY);
   const [deleteState, deleteAction] = useActionState(deleteMenuItem, EMPTY);
+
+  useCloseOnSave(toggleId, state);
 
   return (
     <div className="space-y-2 rounded-xl bg-slate-50 p-3">

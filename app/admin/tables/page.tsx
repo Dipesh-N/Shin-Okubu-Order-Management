@@ -92,7 +92,7 @@ export default async function AdminTablesPage() {
               </div>
 
               <div className="hidden px-3 pb-3 peer-checked:block">
-                <EditTablePanel table={table} />
+                <EditTablePanel table={table} toggleId={`edit-table-${table.id}`} />
               </div>
             </div>
           ))}

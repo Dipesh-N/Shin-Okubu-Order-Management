@@ -10,7 +10,7 @@ export function compareLabels(a: string, b: string): number {
 }
 
 const ORDER_COLUMNS =
-  "id, ticket_no, table_id, status, created_by, created_at, completed_at, payment_id, is_takeout, order_items(id, order_id, menu_item_id, item_name, unit_price, qty, to_kitchen)";
+  "id, ticket_no, table_id, status, created_by, created_at, completed_at, payment_id, is_takeout, order_items(id, order_id, menu_item_id, item_name, unit_price, qty, to_kitchen, voided_at, replaced_by)";
 
 /** Everything Hall View needs: active tables, their unpaid tickets, the menu. */
 export async function fetchHallData(supabase: SupabaseClient) {

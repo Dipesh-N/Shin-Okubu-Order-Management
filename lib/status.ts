@@ -27,7 +27,10 @@ export function tableState(orders: Order[]): TableState {
 
   const total = unpaid.reduce(
     (sum, o) =>
-      sum + o.order_items.reduce((s, i) => s + i.unit_price * i.qty, 0),
+      sum +
+      o.order_items
+        .filter((i) => !i.voided_at)
+        .reduce((s, i) => s + i.unit_price * i.qty, 0),
     0,
   );
 

@@ -9,6 +9,7 @@ import {
   type FormState,
 } from "@/app/admin/actions";
 import type { RestaurantTable } from "@/lib/types";
+import { useCloseOnSave } from "@/lib/use-close-on-save";
 
 const EMPTY: FormState = { error: null, ok: null };
 const field =
@@ -58,9 +59,18 @@ export function AddTableForm() {
 }
 
 /** Renaming and deleting, behind the row's Edit toggle. */
-export function EditTablePanel({ table }: { table: RestaurantTable }) {
+export function EditTablePanel({
+  table,
+  toggleId,
+}: {
+  table: RestaurantTable;
+  /** The checkbox that opens this panel, so a successful save can close it. */
+  toggleId: string;
+}) {
   const [state, action] = useActionState(renameTable, EMPTY);
   const [deleteState, deleteAction] = useActionState(deleteTable, EMPTY);
+
+  useCloseOnSave(toggleId, state);
 
   return (
     <div className="space-y-2 rounded-xl bg-slate-50 p-3">

@@ -6,6 +6,8 @@ import { TakeoutBadge } from "@/components/takeout-badge";
 import { formatYen, orderTotal } from "@/lib/money";
 import { STATUS_CLASS, STATUS_LABEL, minutesAgo, tableState } from "@/lib/status";
 import type { Order, PaymentMethod, RestaurantTable } from "@/lib/types";
+import { groupAmendments, liveItems } from "@/lib/amendments";
+import { TicketEditor } from "./ticket-editor";
 
 type Props = {
   table: RestaurantTable;
@@ -13,6 +15,8 @@ type Props = {
   onBack: () => void;
   onAddItems: () => void;
   onCancelTicket: (orderId: string) => Promise<void>;
+  /** Applies every quantity correction from one Save in a single pass. */
+  onAmendMany: (changes: { itemId: string; qty: number }[]) => Promise<void>;
   onPay: (method: PaymentMethod) => Promise<void>;
 };
 
@@ -28,9 +32,11 @@ export function TableDetail({
   onBack,
   onAddItems,
   onCancelTicket,
+  onAmendMany,
   onPay,
 }: Props) {
   const [paying, setPaying] = useState(false);
+  const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const s = tableState(orders);
 
@@ -81,18 +87,75 @@ export function TableDetail({
               <span className="ml-auto text-sm text-slate-400">
                 {minutesAgo(order.created_at)}
               </span>
+
+              {/* One Edit for the whole ticket rather than one per line. */}
+              {!order.payment_id && editingOrderId !== order.id && (
+                <button
+                  onClick={() => setEditingOrderId(order.id)}
+                  className="h-10 rounded-lg px-3 text-sm font-semibold text-slate-500
+                             ring-1 ring-slate-200 active:bg-slate-100"
+                >
+                  Edit
+                </button>
+              )}
             </div>
 
-            {order.order_items.map((item) => (
-              <div key={item.id} className="flex justify-between py-0.5">
-                <span className="text-slate-800">
-                  {item.item_name} × {item.qty}
-                </span>
-                <span className="tabular-nums text-slate-600">
-                  {formatYen(item.unit_price * item.qty)}
-                </span>
-              </div>
-            ))}
+            {editingOrderId === order.id ? (
+              <TicketEditor
+                items={liveItems(order.order_items)}
+                onCancel={() => setEditingOrderId(null)}
+                onSave={async (changes) => {
+                  await onAmendMany(changes);
+                  setEditingOrderId(null);
+                }}
+              />
+            ) : (
+              <>
+              {groupAmendments(order.order_items).map((line) => {
+                const key = line.current?.id ?? line.superseded.at(-1)!.id;
+
+                return (
+                  <div key={key} className="border-t border-slate-100 py-1 first:border-t-0">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      {/* Every earlier version, struck through and kept. */}
+                      {line.superseded.map((old) => (
+                        <span
+                          key={old.id}
+                          className="text-slate-400 line-through decoration-red-400 decoration-2"
+                        >
+                          {old.item_name} × {old.qty}
+                        </span>
+                      ))}
+
+                      {line.superseded.length > 0 && (
+                        <span aria-hidden className="font-bold text-slate-400">
+                          →
+                        </span>
+                      )}
+
+                      {line.current ? (
+                        <span className="font-medium text-slate-900">
+                          {line.current.item_name} × {line.current.qty}
+                        </span>
+                      ) : (
+                        <span className="text-sm font-semibold uppercase tracking-wide text-red-600">
+                          Removed
+                        </span>
+                      )}
+
+                      <span className="ml-auto flex items-center gap-2">
+                        <span className="tabular-nums text-slate-600">
+                          {line.current
+                            ? formatYen(line.current.unit_price * line.current.qty)
+                            : formatYen(0)}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+              </>
+            )}
 
             <div className="mt-2 flex items-center justify-between border-t border-slate-100 pt-2">
               <span className="text-sm font-semibold text-slate-500">

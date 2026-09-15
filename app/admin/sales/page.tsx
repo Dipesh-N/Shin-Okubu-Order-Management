@@ -48,7 +48,7 @@ export default async function AdminSalesPage(props: PageProps<"/admin/sales">) {
   if (payments.length > 0) {
     const { data: orderRows, error: ordersError } = await supabase
       .from("orders")
-      .select("payment_id, order_items(item_name, unit_price, qty)")
+      .select("payment_id, order_items(item_name, unit_price, qty, voided_at)")
       .in(
         "payment_id",
         payments.map((p) => p.id),
@@ -61,6 +61,8 @@ export default async function AdminSalesPage(props: PageProps<"/admin/sales">) {
     const tally = new Map<string, SoldRow>();
     for (const order of orderRows ?? []) {
       for (const item of order.order_items ?? []) {
+        // A corrected-away line was never served and never charged for.
+        if (item.voided_at) continue;
         const row = tally.get(item.item_name) ?? {
           name: item.item_name,
           qty: 0,

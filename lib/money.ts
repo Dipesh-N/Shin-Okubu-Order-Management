@@ -7,7 +7,11 @@ export function formatYen(amount: number): string {
   return `¥${Math.round(amount).toLocaleString("ja-JP")}`;
 }
 
-/** Sums a ticket's line items. */
-export function orderTotal(items: { unit_price: number; qty: number }[]): number {
-  return items.reduce((sum, i) => sum + i.unit_price * i.qty, 0);
+/** Sums a ticket's live line items. Corrected-away lines are not charged. */
+export function orderTotal(
+  items: { unit_price: number; qty: number; voided_at?: string | null }[],
+): number {
+  return items
+    .filter((i) => !i.voided_at)
+    .reduce((sum, i) => sum + i.unit_price * i.qty, 0);
 }

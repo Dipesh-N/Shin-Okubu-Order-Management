@@ -39,6 +39,10 @@ export type OrderItem = {
   qty: number;
   /** Snapshotted when the order is taken, so later changes never rewrite it. */
   to_kitchen: boolean;
+  /** Set when this line was corrected or removed. Kept for the audit trail. */
+  voided_at: string | null;
+  /** The line that superseded this one; null if it was simply removed. */
+  replaced_by: string | null;
 };
 
 /** One "send to kitchen" = one ticket. */

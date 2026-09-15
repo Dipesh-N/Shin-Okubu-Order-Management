@@ -74,3 +74,26 @@ export async function settleTable(
   const row = Array.isArray(data) ? data[0] : data;
   return row as { payment_id: string; total: number };
 }
+
+/**
+ * Corrects one line of a sent ticket.
+ *
+ * The old line is kept and struck through rather than overwritten, so the
+ * kitchen can see that what they were asked for has changed.
+ *
+ * @param menuItemId null to keep the same dish, or a new dish to swap to
+ * @param qty        0 removes the line outright
+ */
+export async function amendOrderItem(
+  supabase: SupabaseClient,
+  itemId: string,
+  menuItemId: string | null,
+  qty: number,
+): Promise<void> {
+  const { error } = await supabase.rpc("amend_order_item", {
+    p_item_id: itemId,
+    p_menu_item_id: menuItemId,
+    p_qty: qty,
+  });
+  if (error) fail(error.message, "Could not change the order.");
+}

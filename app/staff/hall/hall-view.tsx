@@ -4,7 +4,12 @@ import { useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { fetchHallData } from "@/lib/queries";
 import { useLiveData } from "@/lib/use-live-data";
-import { cancelOrder, placeOrder, settleTable } from "@/lib/mutations";
+import {
+  amendOrderItem,
+  cancelOrder,
+  placeOrder,
+  settleTable,
+} from "@/lib/mutations";
 import { formatYen } from "@/lib/money";
 import type { Order, PaymentMethod, RestaurantTable } from "@/lib/types";
 import { LiveBadge } from "@/components/live-badge";
@@ -94,6 +99,27 @@ export function HallView() {
     }
   }
 
+  async function amendMany(changes: { itemId: string; qty: number }[]) {
+    const supabase = createClient();
+    try {
+      // Sequential, not parallel: each correction reads the line it is
+      // replacing, and the database rejects a second amend of the same line.
+      for (const change of changes) {
+        await amendOrderItem(supabase, change.itemId, null, change.qty);
+      }
+      setToast(
+        changes.length === 1
+          ? "Order changed."
+          : `${changes.length} changes saved.`,
+      );
+      await reload();
+    } catch (err) {
+      setToast(errorMessage(err, "Could not change the order."));
+      // Some corrections may have gone through before the failure.
+      await reload();
+    }
+  }
+
   async function pay(method: PaymentMethod) {
     if (!currentTable) return;
     try {
@@ -150,6 +176,7 @@ export function HallView() {
           onBack={() => setScreen({ name: "tables" })}
           onAddItems={() => setScreen({ name: "order", tableId: currentTable.id })}
           onCancelTicket={cancelTicket}
+          onAmendMany={amendMany}
           onPay={pay}
         />
       )}

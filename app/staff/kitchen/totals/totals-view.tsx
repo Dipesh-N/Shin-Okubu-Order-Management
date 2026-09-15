@@ -49,8 +49,8 @@ export function KitchenTotalsView() {
   const tally = new Map<string, Row>();
   for (const order of data.active) {
     for (const item of order.order_items) {
-      // Drinks are not cooked, so they are not part of the batch.
-      if (!item.to_kitchen) continue;
+      // Drinks are not cooked, and corrected-away lines are not made.
+      if (!item.to_kitchen || item.voided_at) continue;
       const row = tally.get(item.item_name) ?? {
         name: item.item_name,
         total: 0,

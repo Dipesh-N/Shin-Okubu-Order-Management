@@ -29,6 +29,10 @@ export function OrderBuilder({
 }: Props) {
   // Order comes from the admin's category list, not from the item rows.
   const [category, setCategory] = useState<string>(categories[0] ?? "");
+  // If the menu was empty when this opened (or the chosen tab disappeared),
+  // fall back to the first real category rather than showing nothing.
+  const activeCategory =
+    categories.includes(category) ? category : (categories[0] ?? "");
   const [cart, setCart] = useState<Map<string, number>>(new Map());
 
   // A long category row scrolls, and the selected tab was ending up clipped
@@ -36,11 +40,11 @@ export function OrderBuilder({
   const activeTabRef = useRef<HTMLButtonElement | null>(null);
   useEffect(() => {
     activeTabRef.current?.scrollIntoView({ inline: "nearest", block: "nearest" });
-  }, [category]);
+  }, [activeCategory]);
   const [sending, setSending] = useState(false);
   const [isTakeout, setIsTakeout] = useState(false);
 
-  const visible = menu.filter((m) => m.category === category);
+  const visible = menu.filter((m) => m.category === activeCategory);
 
   const lines = [...cart.entries()].map(([id, qty]) => {
     const item = menu.find((m) => m.id === id)!;
@@ -114,11 +118,22 @@ export function OrderBuilder({
         </button>
       </div>
 
+      {menu.length === 0 && (
+        <p className="p-8 text-center text-slate-500">
+          There is nothing on the menu yet. An admin can add items under
+          Admin → Menu.
+        </p>
+      )}
+
       {/* Category tabs. The selected one is filled dark and lifted, so it
           reads at a glance even half-way along a scrolling row. */}
-      <div className="flex gap-2 overflow-x-auto border-b border-slate-200 bg-white px-3 py-2.5">
+      <div
+        className={`flex gap-2 overflow-x-auto border-b border-slate-200 bg-white px-3 py-2.5 ${
+          categories.length === 0 ? "hidden" : ""
+        }`}
+      >
         {categories.map((c) => {
-          const selected = c === category;
+          const selected = c === activeCategory;
           return (
             <button
               key={c}
