@@ -53,10 +53,11 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isSignedIn && isLogin) {
-    // Role decides the destination; "/" resolves it.
-    return NextResponse.redirect(new URL("/", request.url));
-  }
+  // Deliberately NOT redirecting a signed-in visitor away from /login here.
+  // The proxy can only see that a session cookie exists, not whether that
+  // user has a usable profile. If it bounced them to "/" and the app then
+  // sent them back to /login, the two would redirect at each other forever.
+  // /login makes that decision instead, where the role is actually known.
 
   return response;
 }

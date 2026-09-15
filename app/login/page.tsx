@@ -1,9 +1,17 @@
+import { redirect } from "next/navigation";
+import { getCurrentUser, homeForRole } from "@/lib/auth";
 import { LoginForm } from "./login-form";
 import { RESTAURANT_NAME } from "@/lib/restaurant";
 
 export const metadata = { title: "Sign in" };
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  // Only send someone onward once we know who they are. A session whose
+  // profile is missing or unreadable falls through to the form, which is a
+  // recoverable state — unlike bouncing them in a loop.
+  const user = await getCurrentUser();
+  if (user) redirect(homeForRole(user.role));
+
   return (
     <main className="flex flex-1 items-center justify-center p-6">
       <div className="w-full max-w-sm">

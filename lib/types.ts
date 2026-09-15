@@ -60,7 +60,3 @@ export type Order = {
   order_items: OrderItem[];
 };
 
-/** A table plus its unpaid tickets, as shown in Hall View. */
-export type TableWithOrders = RestaurantTable & {
-  orders: Order[];
-};

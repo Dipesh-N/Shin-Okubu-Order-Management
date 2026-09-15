@@ -46,7 +46,3 @@ export function playChime() {
   });
 }
 
-/** Called from the tap that enables sound, to satisfy autoplay rules. */
-export function unlockAudio() {
-  context();
-}
