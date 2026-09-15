@@ -1,30 +1,43 @@
 import type { Order } from "@/lib/types";
 
 export type TableState = {
+  /** Something is still owed: money, food, or both. */
   occupied: boolean;
-  /** Food is cooked and waiting to be carried up. */
+  /** Food is cooked and waiting to be carried up or handed over. */
   ready: boolean;
   cooking: boolean;
   waiting: boolean;
+  /** What is still to be paid. Already-paid tickets are not counted. */
   total: number;
+  /** False once everything on the table has been paid for. */
+  hasUnpaid: boolean;
 };
 
 /**
- * A table's state is derived from its unpaid tickets, never stored, so it can
- * never drift out of step with reality.
+ * A table's state is derived from its tickets, never stored, so it can never
+ * drift out of step with reality.
+ *
+ * Paying and cooking are independent: a takeout customer may pay first and
+ * wait, or a diner may eat first and pay after. A ticket is finished only
+ * when both have happened, and the queries only hand us tickets where at
+ * least one is still outstanding.
  */
 export function tableState(orders: Order[]): TableState {
-  const total = orders.reduce(
+  const unpaid = orders.filter((o) => !o.payment_id);
+
+  const total = unpaid.reduce(
     (sum, o) =>
       sum + o.order_items.reduce((s, i) => s + i.unit_price * i.qty, 0),
     0,
   );
+
   return {
     occupied: orders.length > 0,
     ready: orders.some((o) => o.status === "COMPLETED"),
     cooking: orders.some((o) => o.status === "COOKING"),
     waiting: orders.some((o) => o.status === "NEW"),
     total,
+    hasUnpaid: unpaid.length > 0,
   };
 }
 

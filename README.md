@@ -74,6 +74,11 @@ sends item ids, quantities and a payment method.
 **Names and prices are snapshotted** onto each order line, so changing the
 menu never rewrites past receipts.
 
+**The kitchen can hear new orders.** A bell button on the kitchen screens
+chimes on each new ticket. It is per device (the iPad wants it, a waiter's
+phone does not) and the tone is generated in the browser, so there is no
+sound file to download and it works offline.
+
 **Realtime is a signal, not a stream.** Any change to `orders` or
 `order_items` triggers a refetch rather than a local patch. A 15-second poll
 runs alongside it, so a dropped websocket can never silently freeze the

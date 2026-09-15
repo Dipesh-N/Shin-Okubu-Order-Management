@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { SoundToggle } from "@/components/sound-toggle";
 
 const TABS = [
   { href: "/staff/kitchen", label: "Tickets" },
@@ -29,6 +30,8 @@ export function KitchenTabs() {
           </Link>
         );
       })}
+
+      <SoundToggle />
     </nav>
   );
 }

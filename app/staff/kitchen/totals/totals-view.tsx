@@ -1,7 +1,10 @@
 "use client";
 
+import { useMemo } from "react";
 import { fetchKitchenData } from "@/lib/queries";
 import { useLiveData } from "@/lib/use-live-data";
+import { useNewOrderChime } from "@/lib/use-new-order-chime";
+import { useSoundEnabled } from "@/components/sound-toggle";
 import { LiveBadge } from "@/components/live-badge";
 
 type Row = {
@@ -13,6 +16,17 @@ type Row = {
 
 export function KitchenTotalsView() {
   const { data, error, live, reload } = useLiveData(fetchKitchenData);
+
+  // The kitchen may be sitting on this screen rather than the ticket list.
+  const soundEnabled = useSoundEnabled();
+  const waitingIds = useMemo(
+    () =>
+      (data?.active ?? [])
+        .filter((o) => o.status === "NEW")
+        .map((o) => o.id),
+    [data?.active],
+  );
+  useNewOrderChime(waitingIds, soundEnabled);
 
   if (error) {
     return (

@@ -52,9 +52,13 @@ export function TableGrid({ tables, ordersByTable, onPick }: Props) {
           >
             <span className="text-4xl font-bold leading-none">{table.label}</span>
             <span className="text-sm font-medium">{caption}</span>
-            {s.occupied && (
-              <span className="text-sm opacity-90">{formatYen(s.total)}</span>
-            )}
+            {s.occupied &&
+              (s.hasUnpaid ? (
+                <span className="text-sm opacity-90">{formatYen(s.total)}</span>
+              ) : (
+                // Paid up front and still cooking — nothing left to collect.
+                <span className="text-sm font-semibold opacity-90">Paid</span>
+              ))}
           </button>
         );
       })}

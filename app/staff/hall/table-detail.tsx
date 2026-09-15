@@ -73,6 +73,11 @@ export function TableDetail({
                 {STATUS_LABEL[order.status]}
               </span>
               {order.is_takeout && <TakeoutBadge />}
+              {order.payment_id && (
+                <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-blue-800">
+                  Paid
+                </span>
+              )}
               <span className="ml-auto text-sm text-slate-400">
                 {minutesAgo(order.created_at)}
               </span>
@@ -95,8 +100,9 @@ export function TableDetail({
               </span>
               {/* Cancellable while the kitchen has not started — or at any
                   time for a drinks-only round, which they never saw. */}
-              {(order.status === "NEW" ||
-                order.order_items.every((i) => !i.to_kitchen)) && (
+              {!order.payment_id &&
+                (order.status === "NEW" ||
+                  order.order_items.every((i) => !i.to_kitchen)) && (
                 <button
                   onClick={() => onCancelTicket(order.id)}
                   className="h-11 rounded-xl px-4 text-sm font-semibold text-red-600 ring-1 ring-red-200 active:bg-red-50"
@@ -117,7 +123,9 @@ export function TableDetail({
 
       <div className="sticky bottom-0 space-y-2 border-t border-slate-200 bg-white p-3">
         <div className="flex items-baseline justify-between px-1">
-          <span className="font-semibold text-slate-600">Total</span>
+          <span className="font-semibold text-slate-600">
+            {s.hasUnpaid ? "To pay" : "All paid"}
+          </span>
           <span className="text-2xl font-bold tabular-nums">
             {formatYen(s.total)}
           </span>
@@ -158,11 +166,11 @@ export function TableDetail({
             </button>
             <button
               onClick={() => setPaying(true)}
-              disabled={!s.occupied}
+              disabled={!s.hasUnpaid}
               className="h-16 rounded-xl bg-blue-600 text-base font-bold text-white
                          active:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400"
             >
-              Take payment
+              {s.hasUnpaid ? "Take payment" : "Paid"}
             </button>
           </div>
         )}

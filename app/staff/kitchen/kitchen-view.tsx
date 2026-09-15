@@ -7,6 +7,8 @@ import { useLiveData } from "@/lib/use-live-data";
 import { setOrderStatus } from "@/lib/mutations";
 import { minutesAgo } from "@/lib/status";
 import type { Order } from "@/lib/types";
+import { useNewOrderChime } from "@/lib/use-new-order-chime";
+import { useSoundEnabled } from "@/components/sound-toggle";
 import { LiveBadge } from "@/components/live-badge";
 import { Toast } from "@/components/toast";
 import { errorMessage } from "@/lib/errors";
@@ -15,6 +17,18 @@ export function KitchenView() {
   const { data, error, live, reload } = useLiveData(fetchKitchenData);
   const [toast, setToast] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+
+  // Hooks must run before the early returns below, so this is computed from
+  // possibly-absent data rather than after the loading guard.
+  const soundEnabled = useSoundEnabled();
+  const waitingIds = useMemo(
+    () =>
+      (data?.active ?? [])
+        .filter((o) => o.status === "NEW")
+        .map((o) => o.id),
+    [data?.active],
+  );
+  useNewOrderChime(waitingIds, soundEnabled);
 
   const labelFor = useMemo(() => {
     const map = new Map<string, string>();

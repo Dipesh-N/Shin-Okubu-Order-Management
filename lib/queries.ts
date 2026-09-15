@@ -22,7 +22,9 @@ export async function fetchHallData(supabase: SupabaseClient) {
     supabase
       .from("orders")
       .select(ORDER_COLUMNS)
-      .is("payment_id", null)
+      // Open business is money owed OR food owed. A takeout customer who pays
+      // up front still has a ticket here until the kitchen finishes it.
+      .or("payment_id.is.null,status.neq.COMPLETED")
       .order("created_at", { ascending: true }),
     supabase
       .from("menu_items")
@@ -67,14 +69,14 @@ export async function fetchKitchenData(supabase: SupabaseClient) {
     supabase
       .from("orders")
       .select(ORDER_COLUMNS)
+      // Deliberately no payment filter: food that has been paid for still has
+      // to be cooked, which is the whole point of takeout.
       .neq("status", "COMPLETED")
-      .is("payment_id", null)
       .order("created_at", { ascending: true }),
     supabase
       .from("orders")
       .select(ORDER_COLUMNS)
       .eq("status", "COMPLETED")
-      .is("payment_id", null)
       .gte("completed_at", since)
       .order("completed_at", { ascending: false })
       .limit(8),
