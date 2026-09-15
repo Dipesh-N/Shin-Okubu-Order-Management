@@ -5,7 +5,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { errorMessage } from "@/lib/errors";
 
+/** How often to refetch while the realtime socket is down. */
 const FALLBACK_POLL_MS = 15_000;
+/** And while it is up, where this is only a safety net. */
+const HEALTHY_POLL_MS = 60_000;
 const DEBOUNCE_MS = 120;
 
 type State<T> = {
@@ -84,8 +87,6 @@ export function useLiveData<T>(load: (supabase: SupabaseClient) => Promise<T>) {
         if (live) void reload();
       });
 
-    const poll = setInterval(reload, FALLBACK_POLL_MS);
-
     // Coming back to a backgrounded tablet should show current data at once.
     const onVisible = () => {
       if (document.visibilityState === "visible") void reload();
@@ -95,11 +96,24 @@ export function useLiveData<T>(load: (supabase: SupabaseClient) => Promise<T>) {
     return () => {
       cancelled = true;
       clearTimeout(debounce);
-      clearInterval(poll);
       document.removeEventListener("visibilitychange", onVisible);
       void supabase.removeChannel(channel);
     };
   }, [reload]);
+
+  useEffect(() => {
+    // Realtime is the primary signal, so while it is connected this poll is
+    // only insurance and can be slow. When the socket drops it becomes the
+    // only thing keeping the screen current, so it speeds up.
+    //
+    // Polling hard regardless would quadruple the data this app pulls for no
+    // benefit — enough to matter on a free Supabase plan.
+    const interval = setInterval(
+      reload,
+      state.live ? HEALTHY_POLL_MS : FALLBACK_POLL_MS,
+    );
+    return () => clearInterval(interval);
+  }, [state.live, reload]);
 
   return { ...state, reload };
 }
